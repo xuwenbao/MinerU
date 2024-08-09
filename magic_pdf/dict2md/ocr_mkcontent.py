@@ -141,7 +141,7 @@ def ocr_mk_markdown_with_para_core_v2(paras_of_layout, mode, img_buket_path=""):
     return page_markdown
 
 
-def merge_para_with_text(para_block):
+def merge_para_with_text(para_block, page_idx):
     para_text = ''
     for line in para_block['lines']:
         line_text = ""
@@ -172,6 +172,8 @@ def merge_para_with_text(para_block):
                     para_text += content  # 中文语境下，content间不需要空格分隔
                 else:
                     para_text += content + ' '  # 英文语境下 content间需要空格分隔
+    if "bbox" in para_block:
+        para_text = f"<!-- page_idx: {page_idx}, bbox: {para_block['bbox']} -->\n" + para_text
     return para_text
 
 
@@ -215,20 +217,20 @@ def para_to_standard_format_v2(para_block, img_buket_path, page_idx):
     if para_type == BlockType.Text:
         para_content = {
             'type': 'text',
-            'text': merge_para_with_text(para_block),
+            'text': merge_para_with_text(para_block, page_idx),
             'page_idx': page_idx
         }
     elif para_type == BlockType.Title:
         para_content = {
             'type': 'text',
-            'text': merge_para_with_text(para_block),
+            'text': merge_para_with_text(para_block, page_idx),
             'text_level': 1,
             'page_idx': page_idx
         }
     elif para_type == BlockType.InterlineEquation:
         para_content = {
             'type': 'equation',
-            'text': merge_para_with_text(para_block),
+            'text': merge_para_with_text(para_block, page_idx),
             'text_format': "latex",
             'page_idx': page_idx
         }
@@ -241,7 +243,7 @@ def para_to_standard_format_v2(para_block, img_buket_path, page_idx):
             if block['type'] == BlockType.ImageBody:
                 para_content['img_path'] = join_path(img_buket_path, block["lines"][0]["spans"][0]['image_path'])
             if block['type'] == BlockType.ImageCaption:
-                para_content['img_caption'] = merge_para_with_text(block)
+                para_content['img_caption'] = merge_para_with_text(block, page_idx)
     elif para_type == BlockType.Table:
         para_content = {
             'type': 'table',
@@ -251,9 +253,9 @@ def para_to_standard_format_v2(para_block, img_buket_path, page_idx):
             if block['type'] == BlockType.TableBody:
                 para_content['img_path'] = join_path(img_buket_path, block["lines"][0]["spans"][0]['image_path'])
             if block['type'] == BlockType.TableCaption:
-                para_content['table_caption'] = merge_para_with_text(block)
+                para_content['table_caption'] = merge_para_with_text(block, page_idx)
             if block['type'] == BlockType.TableFootnote:
-                para_content['table_footnote'] = merge_para_with_text(block)
+                para_content['table_footnote'] = merge_para_with_text(block, page_idx)
 
     return para_content
 
