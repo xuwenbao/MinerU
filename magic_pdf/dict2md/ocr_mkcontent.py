@@ -173,7 +173,7 @@ def merge_para_with_text(para_block, page_idx):
                 else:
                     para_text += content + ' '  # 英文语境下 content间需要空格分隔
     if "bbox" in para_block:
-        para_text = f"<!-- page_idx: {page_idx}, bbox: {para_block['bbox']} -->\n" + para_text
+        para_text = para_text + f"<!-- page_idx: {page_idx}, bbox: {para_block['bbox']} -->\n"
     return para_text
 
 
