@@ -92,17 +92,17 @@ def ocr_mk_markdown_with_para_core(paras_of_layout, mode, img_buket_path=""):
     return page_markdown
 
 
-def ocr_mk_markdown_with_para_core_v2(paras_of_layout, mode, img_buket_path=""):
+def ocr_mk_markdown_with_para_core_v2(paras_of_layout, mode, img_buket_path="", page_idx=None):
     page_markdown = []
     for para_block in paras_of_layout:
         para_text = ''
         para_type = para_block['type']
         if para_type == BlockType.Text:
-            para_text = merge_para_with_text(para_block)
+            para_text = merge_para_with_text(para_block, page_idx)
         elif para_type == BlockType.Title:
-            para_text = f"# {merge_para_with_text(para_block)}"
+            para_text = f"# {merge_para_with_text(para_block, page_idx)}"
         elif para_type == BlockType.InterlineEquation:
-            para_text = merge_para_with_text(para_block)
+            para_text = merge_para_with_text(para_block, page_idx)
         elif para_type == BlockType.Image:
             if mode == 'nlp':
                 continue
@@ -115,14 +115,14 @@ def ocr_mk_markdown_with_para_core_v2(paras_of_layout, mode, img_buket_path=""):
                                     para_text += f"\n![]({join_path(img_buket_path, span['image_path'])})  \n"
                 for block in para_block['blocks']:  # 2nd.拼image_caption
                     if block['type'] == BlockType.ImageCaption:
-                        para_text += merge_para_with_text(block)
+                        para_text += merge_para_with_text(block, page_idx)
         elif para_type == BlockType.Table:
             if mode == 'nlp':
                 continue
             elif mode == 'mm':
                 for block in para_block['blocks']:  # 1st.拼table_caption
                     if block['type'] == BlockType.TableCaption:
-                        para_text += merge_para_with_text(block)
+                        para_text += merge_para_with_text(block, page_idx)
                 for block in para_block['blocks']:  # 2nd.拼table_body
                     if block['type'] == BlockType.TableBody:
                         for line in block['lines']:
@@ -131,7 +131,7 @@ def ocr_mk_markdown_with_para_core_v2(paras_of_layout, mode, img_buket_path=""):
                                     para_text += f"\n![]({join_path(img_buket_path, span['image_path'])})  \n"
                 for block in para_block['blocks']:  # 3rd.拼table_footnote
                     if block['type'] == BlockType.TableFootnote:
-                        para_text += merge_para_with_text(block)
+                        para_text += merge_para_with_text(block, page_idx)
 
         if para_text.strip() == '':
             continue
@@ -356,10 +356,10 @@ def union_make(pdf_info_dict: list, make_mode: str, drop_mode: str, img_buket_pa
         if not paras_of_layout:
             continue
         if make_mode == MakeMode.MM_MD:
-            page_markdown = ocr_mk_markdown_with_para_core_v2(paras_of_layout, "mm", img_buket_path)
+            page_markdown = ocr_mk_markdown_with_para_core_v2(paras_of_layout, "mm", img_buket_path, page_idx)
             output_content.extend(page_markdown)
         elif make_mode == MakeMode.NLP_MD:
-            page_markdown = ocr_mk_markdown_with_para_core_v2(paras_of_layout, "nlp")
+            page_markdown = ocr_mk_markdown_with_para_core_v2(paras_of_layout, "nlp", page_idx)
             output_content.extend(page_markdown)
         elif make_mode == MakeMode.STANDARD_FORMAT:
             for para_block in paras_of_layout:
