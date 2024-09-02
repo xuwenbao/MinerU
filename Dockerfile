@@ -30,7 +30,7 @@ RUN python3 -m venv /opt/mineru_venv
 # Activate the virtual environment and install necessary Python packages
 RUN /bin/bash -c "source /opt/mineru_venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install magic-pdf[full-cpu] detectron2 --extra-index-url https://myhloli.github.io/wheels/"
+    pip install https://github.com/xuwenbao/MinerU/archive/refs/heads/licc-0.6.2b1.zip detectron2 --extra-index-url https://myhloli.github.io/wheels/"
 
 # Copy the configuration file template and set up the model directory
 COPY magic-pdf.template.json /root/magic-pdf.json
