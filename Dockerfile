@@ -1,5 +1,4 @@
-# Use the official Ubuntu base image
-FROM ubuntu:latest as base
+FROM harbor.licc.ac.cn/proxy/pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime as base
 
 ARG http_proxy
 ARG https_proxy
@@ -28,6 +27,8 @@ RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list && 
         git \
         libgl1 \
         libglib2.0-0 \
+        pandoc \
+        libreoffice \
         && rm -rf /var/lib/apt/lists/*
         
 # Set Python 3.10 as the default python3
