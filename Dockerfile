@@ -67,6 +67,7 @@ COPY magic-pdf.template.json /root/magic-pdf.json
 
 # Set the models directory in the configuration file (adjust the path as needed)
 RUN sed -i 's|/tmp/models|/opt/models|g' /root/magic-pdf.json
+# RUN sed -i 's|cpu|cuda|g' /root/magic-pdf.json
 
 # Create the models directory
 RUN mkdir -p /opt/models
