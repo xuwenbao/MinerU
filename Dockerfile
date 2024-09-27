@@ -1,5 +1,8 @@
 # Use the official Ubuntu base image
-FROM ubuntu:22.04
+FROM ubuntu:22.04 as base
+
+# ---- Dependencies ----
+FROM base AS dependencies
 
 # Set environment variables to non-interactive to avoid prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -14,11 +17,15 @@ RUN apt-get update && \
         python3.10 \
         python3.10-venv \
         python3.10-distutils \
+        python3.10-dev \
+        python3-opencv \
         python3-pip \
         wget \
         git \
         libgl1 \
         libglib2.0-0 \
+        pandoc \
+        libreoffice \
         && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.10 as the default python3
@@ -26,6 +33,9 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
 # Create a virtual environment for MinerU
 RUN python3 -m venv /opt/mineru_venv
+
+# ---- Packages ----
+FROM dependencies AS packages
 
 # Activate the virtual environment and install necessary Python packages
 RUN /bin/bash -c "source /opt/mineru_venv/bin/activate && \
@@ -41,11 +51,11 @@ RUN /bin/bash -c "wget https://gitee.com/myhloli/MinerU/raw/master/magic-pdf.tem
     pip3 install -U magic-pdf"
 
 # Download models and update the configuration file
-RUN /bin/bash -c "pip3 install modelscope && \
-    wget https://gitee.com/myhloli/MinerU/raw/master/docs/download_models.py && \
-    python3 download_models.py && \
-    sed -i 's|/tmp/models|/root/.cache/modelscope/hub/opendatalab/PDF-Extract-Kit/models|g' /root/magic-pdf.json && \
-    sed -i 's|cpu|cuda|g' /root/magic-pdf.json"
+# RUN /bin/bash -c "pip3 install modelscope && \
+#     wget https://gitee.com/myhloli/MinerU/raw/master/docs/download_models.py && \
+#     python3 download_models.py && \
+#     sed -i 's|/tmp/models|/root/.cache/modelscope/hub/opendatalab/PDF-Extract-Kit/models|g' /root/magic-pdf.json && \
+#     sed -i 's|cpu|cuda|g' /root/magic-pdf.json"
 
 # Set the entry point to activate the virtual environment and run the command line tool
 ENTRYPOINT ["/bin/bash", "-c", "source /opt/mineru_venv/bin/activate && exec \"$@\"", "--"]
